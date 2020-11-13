@@ -15,77 +15,150 @@ int main()
     */
     std::vector<Coureur> test;
     if (loadCoureurFromFile("ressources/coureurListTest.txt", test)) {
-        std::cout << "-- ERROR LOADING THE FILE --" << std::endl;
+        std::cout << "-- ERROR LOADING THE FILE --\n";
         return EXIT_FAILURE;
     }
+    //Wind generation tests
+    Checkpoint c[2] = { Checkpoint(0.f, 0.f), Checkpoint(1.f, 1.f)  };
+    Parcours p(2, c);
+    p.printWind();
 
     /****************************
                 INIT
     ****************************/
 
     // Create the main window
-    sf::RenderWindow window(sf::VideoMode(1080, 720), "Simulation Course");
-    
+    sf::RenderWindow window(sf::VideoMode(1080, 720), "Simulation Course", sf::Style::Close);
+    window.setKeyRepeatEnabled(false);
+    sf::Image icon;
+    if (!icon.loadFromFile("img/laikaLOGO.png"))
+        return EXIT_FAILURE;
+    window.setIcon (icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
+    window.setFramerateLimit(150);
+ 
     // Load a sprite to display
     sf::Texture texture;
     if (!texture.loadFromFile("img/laikaLOGO.png"))
         return EXIT_FAILURE;
     sf::Sprite sprite(texture);
-   
-    //Time to use for updating the clock at every loop
-    sf::Time realTime = sf::seconds(0.0f);
-
-    // Create a graphical text to display the Time
+  
+ 
+    // Load a font to use
     sf::Font firaCode;
     if (!firaCode.loadFromFile("font/FiraCode.ttf"))
         return EXIT_FAILURE;
-    sf::Text timeDisplay("0:0", firaCode, 40);
-    timeDisplay.setPosition(window.getSize().x - 150.f, 0.f);
-    timeDisplay.setFillColor(sf::Color::Red);
- 
+    
+    // Setup the Main Menu Texts
+    sf::Text playText("Play", firaCode, 60);
+    sf::Text settingsText("Settings", firaCode, 60);
+    playText.setFillColor(sf::Color(247, 127, 0));
+    settingsText.setFillColor(sf::Color(214, 40, 40));
+    centerText(playText, window);
+    centerText(settingsText, window);
+    playText.setPosition(playText.getPosition().x, playText.getPosition().y - 50);
+    settingsText.setPosition(settingsText.getPosition().x, settingsText.getPosition().y + 50);
+
+    // Option selector
+    sf::CircleShape selector(20.f, 3);
+    selector.setPosition(playText.getPosition() - sf::Vector2f(100.f, 25.f)); 
+    selector.setFillColor(sf::Color::Transparent);
+    selector.setOutlineThickness(5.f);
+    selector.setOutlineColor(sf::Color(247, 127, 0));
+    //selector.setOutlineColor(sf::Color(252, 191, 73));
+    selector.setRotation(90.f);
+
     // Load a music to play
     sf::Music music;
     if (!music.openFromFile("music/mii-channel-music.ogg"))
         return EXIT_FAILURE;
-    
+    music.setVolume(50.f);
+    music.setLoop(true);
+    /******************
+       COLOR PALETTE
+    ******************/
+    /*
+    +--------------------+--------+---------------+
+    | Prussian Blue      | 003049 |   0,  48,  73 |
+    | Maximum Red        | D62828 | 214,  40,  40 |
+    | Orange             | F77F00 | 247, 127,   0 |
+    | Maximum Yellow Red | FCBF49 | 252, 191,  73 |
+    | Lemon Meringue     | EAE2B7 | 234, 226, 183 |
+    +--------------------+--------+---------------+
+    */
 
     /****************************
-               START
+             START MENU
     ****************************/
 
     // Play the music
     music.play();
     
-    //Start the clock 
-    sf::Clock chrono;
-    std::string timeWithMinutes;
-
     // Start the game loop
-    while (window.isOpen())
-    {
+    while (window.isOpen()) {
         // Process events
         sf::Event event;
-        while (window.pollEvent(event))
-        {
+        while (window.pollEvent(event)) {
+            switch (event.type) {
             // Close window: exit
-            if (event.type == sf::Event::Closed)
-                window.close();
+                case sf::Event::Closed:
+                    music.stop();
+                    window.close();
+                    break;
+                
+                case sf::Event::KeyPressed:
+                    // Arrows and Enter/Space
+                    if (event.key.code == sf::Keyboard::Down) {
+                        // Down case 
+                        selector.setPosition(settingsText.getPosition() - sf::Vector2f(170.f, 25.f)); 
+                        settingsText.setFillColor(sf::Color(247, 127, 0));
+                        playText.setFillColor(sf::Color(214, 40, 40));
+                    } else if (event.key.code == sf::Keyboard::Up) {
+                        // Up case
+                        selector.setPosition(playText.getPosition() - sf::Vector2f(100.f, 25.f));
+                        playText.setFillColor(sf::Color(247, 127, 0));
+                        settingsText.setFillColor(sf::Color(214, 40, 40));
+                    } else if (event.key.code == sf::Keyboard::Enter or event.key.code == sf::Keyboard::Space) {
+                        // Enter or Space to select an option
+                        // Check the text's color to get the selected option 
+                        if (settingsText.getFillColor() != sf::Color(247, 127, 0)) {
+                            // Play case
+                            /*************
+                                 TODO
+                            *************/
+                            std::cout << "PLAY\n";
+                        switch (simulation(window, p, test)) {
+                                case 2:
+                                    return EXIT_FAILURE;
+                                    break;
+                                default:
+                                    break;
+                            }
+                        } else {
+                            // Settings Case
+                            /*************
+                                 TODO
+                            *************/
+                            std::cout << "SETTINGS\n";
+                        }
+                    } 
+                    break;
+                default:
+                    break;
+            }
+
         }
         // Clear screen
-        window.clear(sf::Color::Black);
+        window.clear(sf::Color(0, 48, 73));
 
-        //Update the timer
-        realTime += chrono.restart();
-        timeWithMinutes = std::to_string((int) (realTime.asSeconds() / 60) ) + ":" + std::to_string((int)realTime.asSeconds() % 60);
-        timeDisplay.setString(timeWithMinutes);
-        //TODO: Better printing with separated mins/sec etc, use a thread to do it ?
-
-        // Draw the sprite
+        // Draw objects
         window.draw(sprite);
-        // Draw the realTime
-        window.draw(timeDisplay);
+        window.draw(playText);
+        window.draw(settingsText);
+        window.draw(selector);
+
         // Update the window
         window.display();
     }
+
     return EXIT_SUCCESS;
 }

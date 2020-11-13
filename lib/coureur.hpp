@@ -15,9 +15,11 @@ private:
     int prepWeeks;      // 8 - 16, see pdf for more info on its drawbacks
     float hydration;    // 0 - 1, see pdf for more info on its drawbacks
     float distanceRan;  // Updated in real time (SFML clock)
-    float Speed;        // Updated at each frame
+    float speed;        // Updated at each frame
+    size_t currentCheckpoint;
+    float Ptmax;        // Used to update to speed
 public:
-    int updateSpeed(const Parcours&, const size_t&, const float&, const float&);
+    int updateSpeed(const Parcours&);
     //CONSTRUCTORS
     Coureur(const std::string&,
             const unsigned int&,
@@ -31,10 +33,12 @@ public:
     std::string getName();
     unsigned int getId();
     float getDistanceRan();
+    size_t getCurrentCheckpoint();
     //SETTERS
     bool setName(const std::string&);
     bool setId(const unsigned int&);
     bool setDistanceRan(const float&);
+    bool setCurrentCheckpoint(const size_t&);
     //FRIENDS
     friend int loadCoureurFromFile(const std::string&, std::vector<Coureur>&);
 };

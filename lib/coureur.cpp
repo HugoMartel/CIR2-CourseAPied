@@ -6,9 +6,18 @@
 /*------------
  SPEED UPDATE
 ------------*/
-int Coureur::updateSpeed(const Parcours&, const size_t&, const float&, const float&) {
-    float Ptmax = averageSpeed * mass * 0.98 + 0.5 * 1.205 * height * averageSpeed * averageSpeed * averageSpeed;// 0 windSpeed
+int Coureur::updateSpeed(const Parcours& p) {
+    //Calculate the actual feltWindSpeed for the runner : front/back wind
+    float anglesRelativePosition = std::abs(p.getWindDirection() - p.getAngle(currentCheckpoint));
+    float feltWindSpeed; 
+    if (anglesRelativePosition <= 45)
+        feltWindSpeed = p.getWindStrength();
+    else if (anglesRelativePosition <= 225 and anglesRelativePosition >= 135)
+        feltWindSpeed = - p.getWindStrength(); 
 
+    float Pr = Ptmax - 0.5 * 1.205 * height * (speed + feltWindSpeed)*(speed + feltWindSpeed)*speed;
+    
+    speed = Pr / (mass * 0.98);
     return EXIT_SUCCESS;
 }
 
@@ -29,7 +38,9 @@ Coureur::Coureur(const std::string& Nname = "I. Ranfast", const unsigned int& Ni
     prepWeeks = (Nprep >= 8.0 and Nprep <= 16.0)? Nprep : 12.0;
     hydration = 1.0;//?????????????????????
     distanceRan = 0.0;
-    Speed = 0;
+    speed = averageSpeed;
+    currentCheckpoint = 0;
+    Ptmax = averageSpeed * mass * 0.98 + 0.5 * 1.205 * height * averageSpeed * averageSpeed * averageSpeed;// 0 windSpeed
 }
 
 //-------------------------------------------------------------------------------------
@@ -132,7 +143,10 @@ int loadCoureurFromFile(const std::string& fileName, std::vector<Coureur>& v) {
             default:
                 std::cout << "File corrupted or not correctly written... (loadCoureurFromFile)" << std::endl;
                 return -3;//File corrupted or not correctly written
-        }    
+        }
+        v[index].currentCheckpoint = 0;
+        v[index].Ptmax = v[index].averageSpeed * v[index].mass * 0.98 + 0.5 * 1.205 * v[index].height * v[index].averageSpeed * v[index].averageSpeed * v[index].averageSpeed;// 0 windSpeed
+
     }
     return EXIT_SUCCESS;
 }
@@ -152,6 +166,10 @@ float Coureur::getDistanceRan() {
     return distanceRan;
 }
 
+size_t Coureur::getCurrentCheckpoint() {
+    return currentCheckpoint;
+}
+
 //SETTERS
 bool Coureur::setName(const std::string& s) {
     if (s == "")
@@ -169,5 +187,10 @@ bool Coureur::setDistanceRan(const float& dr) {
     if (dr < 0)
         return false;
     distanceRan = dr;
+    return true;
+}
+
+bool Coureur::setCurrentCheckpoint(const size_t& cC) {
+    currentCheckpoint = cC;
     return true;
 }
