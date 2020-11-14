@@ -6,7 +6,7 @@
 #include "parcours.hpp"
 #include "coureur.hpp"
 
-int simulation(sf::RenderWindow&, const Parcours&, const std::vector<Coureur>&);
+int simulation(sf::RenderWindow&, Parcours&, std::vector<Coureur>&);
 void updateTime(sf::Time&, sf::Text&);
 void centerText(sf::Text&, sf::RenderWindow&);
 

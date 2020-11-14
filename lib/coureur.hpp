@@ -13,8 +13,8 @@ private:
     float shoeWeight;   // 100 - 300gr, +100gr => averageSpeed * 0.9989
     float averageSpeed; // 8 - 20km/h
     int prepWeeks;      // 8 - 16, see pdf for more info on its drawbacks
-    float hydration;    // 0 - 1, see pdf for more info on its drawbacks
-    float distanceRan;  // Updated in real time (SFML clock)
+    float hydration;    // ?????????????????????????
+    float distanceRan;  // Updated in real time
     float speed;        // Updated at each frame
     size_t currentCheckpoint;
     float Ptmax;        // Used to update to speed

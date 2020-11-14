@@ -18,8 +18,15 @@ int main()
         std::cout << "-- ERROR LOADING THE FILE --\n";
         return EXIT_FAILURE;
     }
+
+    for (size_t i = 0; i< test.size(); ++i)
+        std::cout << test[i].getCurrentCheckpoint() << std::endl;
+    
     //Wind generation tests
-    Checkpoint c[2] = { Checkpoint(0.f, 0.f), Checkpoint(1.f, 1.f)  };
+    Checkpoint c[4] = {  Checkpoint(0.f, 0.f, 0.f),
+                         Checkpoint(0.f, 1.f, 1.f),
+                         Checkpoint(1.f ,1.f, 2.f),
+                         Checkpoint(1.f, 0.f, 0.f) };
     Parcours p(2, c);
     p.printWind();
 

@@ -18,6 +18,17 @@ int Coureur::updateSpeed(const Parcours& p) {
     float Pr = Ptmax - 0.5 * 1.205 * height * (speed + feltWindSpeed)*(speed + feltWindSpeed)*speed;
     
     speed = Pr / (mass * 0.98);
+
+    float slope = p.getSlope(currentCheckpoint);
+    if (slope < 0) {
+        // SPEED BOOST -> 0.35% per 1.5% slope
+        speed *= 1 + 0.35 * ((int)(-slope / 1.5));
+    } else {
+        // SPEED REDUCED -> 1% per 1.5% slope
+        speed *= 1 + ((int)(slope / 1.5));
+    }
+
+
     return EXIT_SUCCESS;
 }
 
@@ -92,7 +103,7 @@ int loadCoureurFromFile(const std::string& fileName, std::vector<Coureur>& v) {
         if (line[0] == '{' or line[0] == '}')
             continue;//SKIP THE SEPARATORS
         
-        //std::cout << line << std::endl;//DEBUG
+        std::cout << line << "|" << std::endl;//DEBUG
 
         //Case for each
         switch (lineCounter) {
@@ -138,16 +149,18 @@ int loadCoureurFromFile(const std::string& fileName, std::vector<Coureur>& v) {
                     return 7;
                 v[index].prepWeeks = std::stoi(line);
                 lineCounter = 0;
+                v[index].hydration = 1;//?????????????????
+                v[index].distanceRan = 0;
+                v[index].currentCheckpoint = 0;
+                v[index].Ptmax = v[index].averageSpeed * v[index].mass * 0.98 + 0.5 * 1.205 * v[index].height * v[index].averageSpeed * v[index].averageSpeed * v[index].averageSpeed;// 0 windSpeed
                 ++index;
                 break;
             default:
                 std::cout << "File corrupted or not correctly written... (loadCoureurFromFile)" << std::endl;
                 return -3;//File corrupted or not correctly written
-        }
-        v[index].currentCheckpoint = 0;
-        v[index].Ptmax = v[index].averageSpeed * v[index].mass * 0.98 + 0.5 * 1.205 * v[index].height * v[index].averageSpeed * v[index].averageSpeed * v[index].averageSpeed;// 0 windSpeed
+        }//Switch end
 
-    }
+    }// While end
     return EXIT_SUCCESS;
 }
 

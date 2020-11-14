@@ -10,7 +10,7 @@ Checkpoint::Checkpoint(const float& nx, const float& ny, const float& nz, const 
     hasFood = hF;
 }
 
-Parcours::Parcours(const std::size_t& n, const Checkpoint* points) {
+Parcours::Parcours(const std::size_t& n, Checkpoint* points) {
     if (!n or points == nullptr) {
         std::cout << "-- BAD ARGS PASSED TO PARCOURS CONSTRUCTOR --" << std::endl;
         return;
@@ -25,24 +25,27 @@ Parcours::Parcours(const std::size_t& n, const Checkpoint* points) {
         std::cout << "-- ERROR ALLOCATING MEMORY FOR THE PARCOURS --" << std::endl;
         return;
     }
-
-    //Copying the checkpoints into the array
+    
     size_t i;
+
+    //Copying the checkpoints into the array 
     for (i = 0; i < checkpointAmount; ++i) {
         checkpoints[i] = points[i];
     }
+
     //Process and fill the slopes values
     for (i = 0; i < checkpointAmount - 1; ++i) {
         slopes[i] = checkpoints[i].getZ() - checkpoints[i+1].getZ();
+        slopes[i] = 100 * ((slopes[i] < 0)? -std::atan2(std::abs(slopes[i]), std::sqrt( std::pow(checkpoints[i+1].getX()-checkpoints[i].getX(),2) + std::pow(checkpoints[i+1].getX()-checkpoints[i].getX(),2) )) : std::atan2(slopes[i], std::sqrt( std::pow(checkpoints[i+1].getX()-checkpoints[i].getX(),2) + std::pow(checkpoints[i+1].getX()-checkpoints[i].getX(),2) )) )/45;
     }
     slopes[i] = checkpoints[i].getZ() - checkpoints[0].getZ();
 
-    //Process and fill the angle values
+    //Process and fill the angle values (to get how the path is oriented in comparaison to the x axis -->)
     for (i = 0; i < checkpointAmount - 1; ++i) {
         //atan of each parcours part the ease the calculation of windSpeed's influence on runners
         angles[i] = std::atan2( std::abs(checkpoints[i+1].getY()-checkpoints[i].getY()), std::abs(checkpoints[i+1].getX()-checkpoints[i].getX()) ) * 180/3.14159265;
     }
-    slopes[i] = std::atan2( std::abs(checkpoints[0].getY()-checkpoints[i].getY()), std::abs(checkpoints[0].getX()-checkpoints[i].getX()) ) * 180/3.14159265;
+    angles[i] = std::atan2( std::abs(checkpoints[0].getY()-checkpoints[i].getY()), std::abs(checkpoints[0].getX()-checkpoints[i].getX()) ) * 180/3.14159265;
  
 
     //Generate the parcours' base wind conditions

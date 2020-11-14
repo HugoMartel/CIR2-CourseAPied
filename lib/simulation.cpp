@@ -5,7 +5,7 @@
 
 
 
-int simulation(sf::RenderWindow& window, const Parcours& parcours, const std::vector<Coureur>& coureurs) {
+int simulation(sf::RenderWindow& window, Parcours& parcours, std::vector<Coureur>& coureurs) {
     window.clear(sf::Color(0, 48, 73));
     
     /*************************************************

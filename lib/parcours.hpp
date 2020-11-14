@@ -37,7 +37,7 @@ public:
     float getSlope(const size_t&) const;
     float getAngle(const size_t&) const;
     //CONSTRUCTORS
-    Parcours(const std::size_t&, const Checkpoint*);//using a known circuit
+    Parcours(const std::size_t&, Checkpoint*);//using a known circuit
     Parcours();//Generates a random circuit
     Parcours(const std::string&);//Loads the circuit from a file
     ~Parcours();
