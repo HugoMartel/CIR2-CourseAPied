@@ -20,6 +20,8 @@ Parcours::Parcours(const std::size_t& n, Checkpoint* points) {
     checkpoints = new Checkpoint[checkpointAmount];
     slopes = new float[checkpointAmount];
     angles = new float[checkpointAmount];
+    distances = new float[checkpointAmount];
+    totalDistance = 0;//To increment during the filling of distances
 
     if(checkpoints == nullptr or slopes == nullptr or angles == nullptr) {
         std::cout << "-- ERROR ALLOCATING MEMORY FOR THE PARCOURS --" << std::endl;
@@ -36,9 +38,11 @@ Parcours::Parcours(const std::size_t& n, Checkpoint* points) {
     //Process and fill the slopes values
     for (i = 0; i < checkpointAmount - 1; ++i) {
         slopes[i] = checkpoints[i].getZ() - checkpoints[i+1].getZ();
-        slopes[i] = 100 * ((slopes[i] < 0)? -std::atan2(std::abs(slopes[i]), std::sqrt( std::pow(checkpoints[i+1].getX()-checkpoints[i].getX(),2) + std::pow(checkpoints[i+1].getX()-checkpoints[i].getX(),2) )) : std::atan2(slopes[i], std::sqrt( std::pow(checkpoints[i+1].getX()-checkpoints[i].getX(),2) + std::pow(checkpoints[i+1].getX()-checkpoints[i].getX(),2) )) )/45;
+        slopes[i] = 100 * ((slopes[i] < 0)? -std::atan2(std::abs(slopes[i]), std::sqrt( std::pow(checkpoints[i+1].getX()-checkpoints[i].getX(),2) + std::pow(checkpoints[i+1].getY()-checkpoints[i].getY(),2) )) : std::atan2(slopes[i], std::sqrt( std::pow(checkpoints[i+1].getX()-checkpoints[i].getX(),2) + std::pow(checkpoints[i+1].getY()-checkpoints[i].getY(),2) )) )/45;
     }
     slopes[i] = checkpoints[i].getZ() - checkpoints[0].getZ();
+    slopes[i] = 100 * ((slopes[i] < 0)? -std::atan2(std::abs(slopes[i]), std::sqrt( std::pow(checkpoints[0].getX()-checkpoints[i].getX(),2) + std::pow(checkpoints[0].getY()-checkpoints[i].getY(),2) )) : std::atan2(slopes[i], std::sqrt( std::pow(checkpoints[0].getX()-checkpoints[i].getX(),2) + std::pow(checkpoints[0].getY()-checkpoints[i].getY(),2) )) )/45;
+ 
 
     //Process and fill the angle values (to get how the path is oriented in comparaison to the x axis -->)
     for (i = 0; i < checkpointAmount - 1; ++i) {
@@ -46,7 +50,14 @@ Parcours::Parcours(const std::size_t& n, Checkpoint* points) {
         angles[i] = std::atan2( std::abs(checkpoints[i+1].getY()-checkpoints[i].getY()), std::abs(checkpoints[i+1].getX()-checkpoints[i].getX()) ) * 180/3.14159265;
     }
     angles[i] = std::atan2( std::abs(checkpoints[0].getY()-checkpoints[i].getY()), std::abs(checkpoints[0].getX()-checkpoints[i].getX()) ) * 180/3.14159265;
- 
+    
+    //Fill the distances values (
+    for (i = 0; i < checkpointAmount - 1; ++i) {
+        distances[i] = totalDistance + std::sqrt(std::pow(checkpoints[i+1].getX()-checkpoints[i].getX(),2) + std::pow(checkpoints[i+1].getY()-checkpoints[i].getY(),2));
+        
+    }
+    distances[i] = totalDistance + std::sqrt( std::pow(checkpoints[0].getX()-checkpoints[i].getX(),2) + std::pow(checkpoints[0].getY()-checkpoints[i].getY(),2) );
+    totalDistance = distances[i];//we could use distances[max] but having it separated is easier
 
     //Generate the parcours' base wind conditions
     genWind();
@@ -56,6 +67,7 @@ Parcours::~Parcours() {
     delete[] checkpoints;
     delete[] slopes;
     delete[] angles;
+    delete[] distances;
 }
 
 
@@ -95,6 +107,15 @@ float Parcours::getSlope(const size_t& n) const {
 float Parcours::getAngle(const size_t& n) const {
     return (n >= checkpointAmount)? angles[n] : 0;
 }
+
+float Parcours::getCheckpointDistance(const size_t& n) const {
+    return (n >= checkpointAmount)? distances[n] : 0;
+}
+
+float Parcours::getTotalDistance() const {
+    return totalDistance;
+}
+
 size_t Parcours::getCheckpointAmount() const {
     return checkpointAmount;
 }

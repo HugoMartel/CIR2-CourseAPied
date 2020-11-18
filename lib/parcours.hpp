@@ -23,9 +23,11 @@ private:
     float* slopes;              //Stores the n slopes between checkpoints
     //I use slopes to adapt the runners speed to the way
     float* angles;              //Stores the angles of the road to ease the calculations of speed
+    float* distances;           //Stores each checkpoint's distance from the start
     size_t checkpointAmount;    // = n checkpoints
     float windDirection;        // using enum Direction
     float windStrength;         // in m/s !!!
+    float totalDistance;        // used for smooth displays
 public:
     int genWind();
     //GETTERS
@@ -36,6 +38,8 @@ public:
     float getWindStrength() const;
     float getSlope(const size_t&) const;
     float getAngle(const size_t&) const;
+    float getCheckpointDistance(const size_t&) const;
+    float getTotalDistance() const;
     //CONSTRUCTORS
     Parcours(const std::size_t&, Checkpoint*);//using a known circuit
     Parcours();//Generates a random circuit

@@ -27,7 +27,7 @@ int Coureur::updateSpeed(const Parcours& p) {
         // SPEED REDUCED -> 1% per 1.5% slope
         speed *= 1 + ((int)(slope / 1.5));
     }
-
+    speed -= (shoeWeight - 100.0)*0.011;// speed deduced from the shoeWeight
 
     return EXIT_SUCCESS;
 }
@@ -41,13 +41,12 @@ int Coureur::updateSpeed(const Parcours& p) {
 Coureur::Coureur(const std::string& Nname = "I. Ranfast", const unsigned int& Nid = 0, const float& Nmass = 80.0, const float& Nheight = 1.7, const float& NshoeWeight = 200.0, const float& Nspeed = 14.0, const int& Nprep = 12.0) {
     name = (Nname != "")? Nname : "I. Ranfast";
     id = Nid;
-    mass = (Nmass >= 45.0 and Nmass <= 120.0)? Nmass : 80.0;
-    height = (Nheight >= 1.3 and Nheight <= 2.0)? Nheight : 1.7;
+    mass = (Nmass >= 44.99 and Nmass <= 120.0001)? Nmass : 80.0;
+    height = (Nheight >= 1.299 and Nheight <= 2.0001)? Nheight : 1.7;
     shoeWeight = NshoeWeight;
-    averageSpeed = (Nspeed >= 8 and Nspeed <= 20)? Nspeed/3.6 : 14.0/3.6;// from km/h to m/s
-    averageSpeed -= (averageSpeed - 100.0)*0.011;//Speed deduced from the shoe weight
-    prepWeeks = (Nprep >= 8.0 and Nprep <= 16.0)? Nprep : 12.0;
-    hydration = 1.0;//?????????????????????
+    averageSpeed = (Nspeed >= 6.99 and Nspeed <= 20.01)? Nspeed/3.6 : 14.0/3.6;// from km/h to m/s
+    prepWeeks = (Nprep >= 7.99 and Nprep <= 16.0001)? Nprep : 12.0;
+    hydration = 0;// Sum of every water drank
     distanceRan = 0.0;
     speed = averageSpeed;
     currentCheckpoint = 0;
@@ -103,7 +102,7 @@ int loadCoureurFromFile(const std::string& fileName, std::vector<Coureur>& v) {
         if (line[0] == '{' or line[0] == '}')
             continue;//SKIP THE SEPARATORS
         
-        std::cout << line << "|" << std::endl;//DEBUG
+        //std::cout << line << "|" << std::endl;//DEBUG
 
         //Case for each
         switch (lineCounter) {
@@ -138,8 +137,8 @@ int loadCoureurFromFile(const std::string& fileName, std::vector<Coureur>& v) {
                 v[index].shoeWeight = std::stof(line);
                 ++lineCounter;
                 break;
-            case 5://float averageSpeed 8-20
-                if (std::stof(line) <= 7.999 or std::stof(line) >= 20.001)
+            case 5://float averageSpeed 7-20
+                if (std::stof(line) <= 6.999 or std::stof(line) >= 20.001)
                     return 6;
                 v[index].averageSpeed = std::stof(line);
                 ++lineCounter;
@@ -149,8 +148,8 @@ int loadCoureurFromFile(const std::string& fileName, std::vector<Coureur>& v) {
                     return 7;
                 v[index].prepWeeks = std::stoi(line);
                 lineCounter = 0;
-                v[index].hydration = 1;//?????????????????
-                v[index].distanceRan = 0;
+                v[index].hydration = 0.f;
+                v[index].distanceRan = 0.f;
                 v[index].currentCheckpoint = 0;
                 v[index].Ptmax = v[index].averageSpeed * v[index].mass * 0.98 + 0.5 * 1.205 * v[index].height * v[index].averageSpeed * v[index].averageSpeed * v[index].averageSpeed;// 0 windSpeed
                 ++index;
