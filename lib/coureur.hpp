@@ -1,6 +1,7 @@
 #ifndef __COUREUR__
 #define __COUREUR__
 #include "parcours.hpp"
+#include "coureur.hpp"
 #include <string>
 #include <vector>
 
@@ -17,6 +18,7 @@ private:
     float distanceRan;  // Updated in real time
     float speed;        // Updated at each frame
     size_t currentCheckpoint;
+    float finishedAt;   // Time at the finish line -1 if gives up
     float Ptmax;        // Used to update to speed
 public:
     int updateSpeed(const Parcours&);
@@ -30,15 +32,18 @@ public:
             const int&
     );
     //GETTERS
-    std::string getName();
-    unsigned int getId();
-    float getDistanceRan();
-    size_t getCurrentCheckpoint();
+    std::string getName() const;
+    unsigned int getId() const;
+    float getDistanceRan() const;
+    size_t getCurrentCheckpoint() const;
+    float getSpeed() const;
+    float getFinishedAt() const;
     //SETTERS
     bool setName(const std::string&);
     bool setId(const unsigned int&);
     bool setDistanceRan(const float&);
     bool setCurrentCheckpoint(const size_t&);
+    bool setFinishedAt(const float&);
     //FRIENDS
     friend int loadCoureurFromFile(const std::string&, std::vector<Coureur>&);
 };

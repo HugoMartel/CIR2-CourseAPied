@@ -1,7 +1,7 @@
 #ifndef __PARCOURS__
 #define __PARCOURS__
 #include <string>
-
+#include <iostream>
 
 class Checkpoint {
 private:
@@ -15,6 +15,14 @@ public:
     float getX() {return x;};
     float getY() {return y;};
     float getZ() {return z;};
+    bool getFood() {return hasFood;};
+    void setX(const float& X) {x = X;};
+    void setY(const float& Y) {y = Y;};
+    void setZ(const float& Z) {z = Z;};
+    void setFood(const bool& hF) {hasFood = hF;};
+    void print() const {
+        std::cout << "(" << x << ", " << y << ", " << z << ")";
+    };
 };
 
 class Parcours {
@@ -47,6 +55,30 @@ public:
     ~Parcours();
     //DEBUG
     void printWind() const;
+    void printCheckpoints() const {
+        std::cout << "{\n";
+        for (size_t i = 0; i < checkpointAmount; ++i) {
+            std::cout << "\t";
+            checkpoints[i].print();
+            std::cout << std::endl;
+        }
+        std::cout << "}\n";
+    };
+    void printDistances() const {
+        for (size_t i = 0; i < checkpointAmount; ++i)
+            std::cout << distances[i] << std::endl;
+        std::cout << "-----------------\n";
+    }
+    void printAngles() const {
+        for (size_t i = 0; i < checkpointAmount; ++i)
+            std::cout << angles[i] << std::endl;
+        std::cout << "-----------------\n";
+    }
+    void printSlopes() const {
+        for (size_t i = 0; i < checkpointAmount; ++i)
+            std::cout << slopes[i] << std::endl;
+        std::cout << "-----------------\n";
+    }
 };
 
 

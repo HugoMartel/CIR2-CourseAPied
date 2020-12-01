@@ -10,25 +10,32 @@ int Coureur::updateSpeed(const Parcours& p) {
     //Calculate the actual feltWindSpeed for the runner : front/back wind
     float anglesRelativePosition = std::abs(p.getWindDirection() - p.getAngle(currentCheckpoint));
     float feltWindSpeed; 
-    if (anglesRelativePosition <= 45)
-        feltWindSpeed = p.getWindStrength();
-    else if (anglesRelativePosition <= 225 and anglesRelativePosition >= 135)
-        feltWindSpeed = - p.getWindStrength(); 
-
-    float Pr = Ptmax - 0.5 * 1.205 * height * (speed + feltWindSpeed)*(speed + feltWindSpeed)*speed;
     
+    if (anglesRelativePosition <= 45)
+        feltWindSpeed = -p.getWindStrength();//wind is boosting
+    else if (anglesRelativePosition <= 225 and anglesRelativePosition >= 135)
+        feltWindSpeed = p.getWindStrength();//wind is an obstacle
+
+    float Pr = Ptmax - (0.5 * 1.205 * height)*(speed + feltWindSpeed)*(speed + feltWindSpeed)*speed;
+    
+    // Case of extreme wind conditions, the runner barely being able to move (the formula gives a negative speed which is wrong, especially for the distances and displays)
+    if (Pr < 0) {
+        std::cout << "WTF-" << name << "\n";
+        Pr = 0.1;
+    }
+
     speed = Pr / (mass * 0.98);
 
     float slope = p.getSlope(currentCheckpoint);
     if (slope < 0) {
         // SPEED BOOST -> 0.35% per 1.5% slope
-        speed *= 1 + 0.35 * ((int)(-slope / 1.5));
+        speed *= 1 + 0.035 * ((int)(-slope / 1.5));
     } else {
         // SPEED REDUCED -> 1% per 1.5% slope
-        speed *= 1 + ((int)(slope / 1.5));
+        speed *= 1 + 0.015 * ((int)(slope / 1.5));
     }
-    speed -= (shoeWeight - 100.0)*0.011;// speed deduced from the shoeWeight
-
+    speed -= ((int)(shoeWeight - 100.0))*0.00011;// speed deduced from the shoeWeight 1.1e-4 deduced per gram
+    std::cout << name << ": " << speed << "\n";
     return EXIT_SUCCESS;
 }
 
@@ -44,13 +51,15 @@ Coureur::Coureur(const std::string& Nname = "I. Ranfast", const unsigned int& Ni
     mass = (Nmass >= 44.99 and Nmass <= 120.0001)? Nmass : 80.0;
     height = (Nheight >= 1.299 and Nheight <= 2.0001)? Nheight : 1.7;
     shoeWeight = NshoeWeight;
-    averageSpeed = (Nspeed >= 6.99 and Nspeed <= 20.01)? Nspeed/3.6 : 14.0/3.6;// from km/h to m/s
+    averageSpeed = (Nspeed >= 7.99 and Nspeed <= 20.01)? Nspeed/3.6 : 14.0/3.6;// from km/h to m/s
     prepWeeks = (Nprep >= 7.99 and Nprep <= 16.0001)? Nprep : 12.0;
     hydration = 0;// Sum of every water drank
     distanceRan = 0.0;
     speed = averageSpeed;
     currentCheckpoint = 0;
-    Ptmax = averageSpeed * mass * 0.98 + 0.5 * 1.205 * height * averageSpeed * averageSpeed * averageSpeed;// 0 windSpeed
+    finishedAt = 0;//-1 if abandons or time in seconds if finished
+    Ptmax = (averageSpeed * mass * 0.98) + 0.5*1.205*height*averageSpeed*averageSpeed*averageSpeed;
+    // 0 windSpeed
 }
 
 //-------------------------------------------------------------------------------------
@@ -60,7 +69,7 @@ int loadCoureurFromFile(const std::string& fileName, std::vector<Coureur>& v) {
     //Open the file
     std::ifstream toLoad(fileName);
     if (!toLoad.is_open()) {
-        std::cout << "Couldn't open the file provided... (loadCoureurFromFile)" << std::endl;
+        std::cerr << "Couldn't open the file provided... (loadCoureurFromFile)\n";
         return -1;
     }
     
@@ -138,9 +147,9 @@ int loadCoureurFromFile(const std::string& fileName, std::vector<Coureur>& v) {
                 ++lineCounter;
                 break;
             case 5://float averageSpeed 7-20
-                if (std::stof(line) <= 6.999 or std::stof(line) >= 20.001)
+                if (std::stof(line) <= 7.999 or std::stof(line) >= 20.001)
                     return 6;
-                v[index].averageSpeed = std::stof(line);
+                v[index].averageSpeed = std::stof(line) / 3.6;
                 ++lineCounter;
                 break;
             case 6://int prepWeeks 8-16
@@ -151,7 +160,8 @@ int loadCoureurFromFile(const std::string& fileName, std::vector<Coureur>& v) {
                 v[index].hydration = 0.f;
                 v[index].distanceRan = 0.f;
                 v[index].currentCheckpoint = 0;
-                v[index].Ptmax = v[index].averageSpeed * v[index].mass * 0.98 + 0.5 * 1.205 * v[index].height * v[index].averageSpeed * v[index].averageSpeed * v[index].averageSpeed;// 0 windSpeed
+                v[index].finishedAt = 0;//-1 if abandons or time in seconds if finished
+                v[index].Ptmax = (v[index].averageSpeed * v[index].mass * 0.98) + (0.5 * 1.205 * v[index].height * v[index].averageSpeed * v[index].averageSpeed * v[index].averageSpeed);// 0 windSpeed
                 ++index;
                 break;
             default:
@@ -166,21 +176,30 @@ int loadCoureurFromFile(const std::string& fileName, std::vector<Coureur>& v) {
 //------------------------------------------------------------------------------------
 
 //GETTERS
-std::string Coureur::getName() {
+std::string Coureur::getName() const {
     return name;
 }
 
-unsigned int Coureur::getId() {
+unsigned int Coureur::getId() const {
     return id;
 }
 
-float Coureur::getDistanceRan() {
+float Coureur::getDistanceRan() const {
     return distanceRan;
 }
 
-size_t Coureur::getCurrentCheckpoint() {
+size_t Coureur::getCurrentCheckpoint() const {
     return currentCheckpoint;
 }
+
+float Coureur::getSpeed() const {
+    return speed;
+}
+
+float Coureur::getFinishedAt() const {
+    return finishedAt;
+}
+
 
 //SETTERS
 bool Coureur::setName(const std::string& s) {
@@ -205,4 +224,11 @@ bool Coureur::setDistanceRan(const float& dr) {
 bool Coureur::setCurrentCheckpoint(const size_t& cC) {
     currentCheckpoint = cC;
     return true;
+}
+
+bool Coureur::setFinishedAt(const float& fA) {
+    if (fA != -1 and fA < 0)
+        return false;
+    finishedAt = fA;
+        return true;
 }

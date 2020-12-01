@@ -15,22 +15,34 @@ int main()
     */
     std::vector<Coureur> test;
     if (loadCoureurFromFile("ressources/coureurListTest.txt", test)) {
-        std::cout << "-- ERROR LOADING THE FILE --\n";
+        std::cerr << "-- ERROR LOADING THE FILE --\n";
         return EXIT_FAILURE;
     }
+    
+    
 
     /*
-    for (size_t i = 0; i< test.size(); ++i)
+    for (size_t i = 0; i < test.size(); ++i)
         std::cout << test[i].getCurrentCheckpoint() << std::endl;
     */
 
-    //Wind generation tests
+    //Parcours tests
+    /*
     Checkpoint c[4] = {  Checkpoint(0.f, 0.f, 0.f),
                          Checkpoint(0.f, 1.f, 1.f),
                          Checkpoint(1.f ,1.f, 2.f),
                          Checkpoint(1.f, 0.f, 0.f) };
     Parcours p(2, c);
     //p.printWind();
+    */
+    //Parcours p("ressources/marathon.txt");
+    Parcours p("ressources/parcoursTest.txt");
+    //p.printWind();
+    //p.printCheckpoints();
+    p.printDistances();
+    //std::cout << "total: " << p.getTotalDistance() << std::endl;
+    //p.printSlopes();
+    //p.printAngles();
 
     /****************************
                 INIT
@@ -130,14 +142,23 @@ int main()
                         // Enter or Space to select an option
                         // Check the text's color to get the selected option 
                         if (settingsText.getFillColor() != sf::Color(247, 127, 0)) {
-                            // Play case
                             /*************
-                                 TODO
+                                 PLAY
                             *************/
                             std::cout << "PLAY\n";
                         switch (simulation(window, p, test)) {
-                                case 2:
+                                case -1:
+                                    std::cerr << "BROKE OUT OF THE WHILE????\n";
                                     return EXIT_FAILURE;
+                                    break;
+                                case 0:
+                                    std::cerr << "Window closed during a simulation...\n";
+                                    return EXIT_SUCCESS;
+                                case 1:
+                                    std::cerr << "ERROR LOADING FONT\n";
+                                    return EXIT_FAILURE;
+                                case 2:
+                                    std::cout << "BACK TO THE MAIN MENU\n";
                                     break;
                                 default:
                                     break;

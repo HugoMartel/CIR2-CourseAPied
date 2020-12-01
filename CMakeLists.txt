@@ -25,7 +25,7 @@ set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Configs" FORCE)
 find_package(SFML COMPONENTS graphics window audio system REQUIRED)
 
 set(SRC "src/main.cpp")
-set(LIBS "lib/coureur.cpp" "lib/parcours.cpp" "lib/simulation.cpp")
+set(LIBS "lib/coureur.cpp" "lib/parcours.cpp" "lib/simulation.cpp" "lib/results.cpp")
 add_library(SimulationCourseLibs ${LIBS})
 add_executable(SimulationCourse ${SRC})
 target_link_libraries(SimulationCourse SimulationCourseLibs sfml-graphics sfml-window sfml-audio pthread)
