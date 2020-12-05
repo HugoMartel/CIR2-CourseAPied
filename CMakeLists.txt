@@ -21,6 +21,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall -Wextra -std=c++17")
 endif()
 
+set(EXECUTABLE_OUTPUT_PATH "../")
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Configs" FORCE)
 find_package(SFML COMPONENTS graphics window audio system REQUIRED)
 

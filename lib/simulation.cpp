@@ -1,5 +1,6 @@
 #include <thread>
 #include <sstream>
+#include <random>
 #include <iomanip>
 #include "simulation.hpp"
 #include <iostream>
@@ -83,6 +84,7 @@ int simulation(sf::RenderWindow& window, Parcours& parcours, std::vector<Coureur
     
     
     //2-Live Parcours
+    //Parcours Display
     //sf::Vertex vertices[parcours.getCheckpointAmount()];
     sf::VertexArray vertices(sf::LineStrip, parcours.getCheckpointAmount());
     // Get max/min X and Y
@@ -114,6 +116,23 @@ int simulation(sf::RenderWindow& window, Parcours& parcours, std::vector<Coureur
     
     window.draw(vertices);
     
+    //Coureurs Display on the parcours
+    std::vector<sf::CircleShape> coureursDisplay;
+    coureursDisplay.resize(coureurs.size());
+    
+    //Init the circles
+    std::default_random_engine gen(std::random_device{}());
+    std::uniform_int_distribution<int> randColor(0, 255);
+    for (size_t i = 0; i < coureurs.size(); ++i) {
+        coureursDisplay[i].setFillColor(sf::Color(randColor(gen), randColor(gen), randColor(gen)));
+        
+        coureursDisplay[i].setRadius(8);
+        coureursDisplay[i].setPointCount(4);
+        coureursDisplay[i].setPosition(vertices[0].position);
+        window.draw(coureursDisplay[i]);
+    }
+
+
 
 
     //3-Stopwatch 
@@ -197,7 +216,10 @@ int simulation(sf::RenderWindow& window, Parcours& parcours, std::vector<Coureur
         //2-Parcours display
         //TODO
         //Update the five best coureurs' position on the parcours
-        
+        for (size_t i = 0; i < coureurs.size(); ++i) { 
+            //coureursDisplay[i].setPosition(vertices[0].position);
+            
+        }
 
         //3-Stopwatch
         intervalle = stopwatch.restart();
@@ -231,6 +253,9 @@ int simulation(sf::RenderWindow& window, Parcours& parcours, std::vector<Coureur
         }
         //2
         window.draw(vertices);
+        for (size_t i = 0; i < coureurs.size(); ++i)
+            window.draw(coureursDisplay[i]);
+
         //3
         window.draw (timeDisplay);
         //4
