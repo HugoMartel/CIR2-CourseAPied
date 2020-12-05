@@ -5,6 +5,9 @@
 #include <iostream>
 #include <algorithm>
 
+#define TIME_SPEED 1000
+//#define TIME_SPEED 1
+
 int simulation(sf::RenderWindow& window, Parcours& parcours, std::vector<Coureur>& coureurs) {
     window.clear(sf::Color(0, 48, 73));
     
@@ -174,15 +177,15 @@ int simulation(sf::RenderWindow& window, Parcours& parcours, std::vector<Coureur
         //Check if someone has won (yes I know if two guys won during the same frame, the one that went further on last frame's distanceUpdate and got sorted out)
         if (updateDistances(intervalle, parcours, coureurs, realTime.asSeconds()) == -1) {
             //Win stuff
-            if (!exportResults(parcours, coureurs)) {
+            if (exportResults(parcours, coureurs)) {
                 std::cerr << "ERROR EXPORTING RESULTS\n";
             }
 
            return 2;
         }
-        
+        //Put the best coureurs on top of the vector
         std::sort(coureurs.begin(), coureurs.end(), [](const Coureur& a, const Coureur& b) {
-            return a.getDistanceRan() > b.getDistanceRan();
+            return (a.getPositionFinishedAt() != b.getPositionFinishedAt()) ? a.getPositionFinishedAt() < b.getPositionFinishedAt() : a.getDistanceRan() > b.getDistanceRan();
         });
         
         for (size_t i = 0; i < coureurAmountToDisplay; ++i ) {
@@ -191,7 +194,9 @@ int simulation(sf::RenderWindow& window, Parcours& parcours, std::vector<Coureur
         }
 
 
-        //2
+        //2-Parcours display
+        //TODO
+        //Update the five best coureurs' position on the parcours
         
 
         //3-Stopwatch
@@ -199,9 +204,8 @@ int simulation(sf::RenderWindow& window, Parcours& parcours, std::vector<Coureur
         realTime += intervalle;
         //Update the time display
         std::thread thread3(updateTime, std::ref(realTime), std::ref(timeDisplay));
-        //A thread isn't needed here and obfuscates the actual order in which the variables are written
-        // The programm should have been thought of first with multithread in mind
-        //updateTime(realTime, timeDisplay);
+        //A thread isn't needed here but it's a neat addition nonetheless
+
 
         //4-Speeds + basic parcours' infos
         //speed update
@@ -243,7 +247,7 @@ int simulation(sf::RenderWindow& window, Parcours& parcours, std::vector<Coureur
 
 
 void updateTime(sf::Time& time, sf::Text& txt) {
-    int timeInSeconds = time.asSeconds();
+    int timeInSeconds = time.asSeconds() * TIME_SPEED;
     std::stringstream ss;
     ss << std::setfill('0') << std::setw(2) << (int)timeInSeconds/3600 << ':' << std::setw(2) << (timeInSeconds/60)%60 << ':' << std::setw(2) << timeInSeconds%60;
     txt.setString(ss.str());
@@ -283,32 +287,40 @@ void updateMaxMinSpeed(sf::Text& txtMax, sf::Text& txtMin, const std::vector<Cou
 }
 
 int updateDistances(const sf::Time& elapsedTime, const Parcours& p, std::vector<Coureur>& v, const float& currentTime) {
-    size_t finishedRaces = 0;
+    static size_t finishedRaces = 0;
     for (size_t i = 0; i < v.size(); ++i) {
-        // d = v * t
-        v[i].setDistanceRan(v[i].getDistanceRan() + (v[i].getSpeed() * elapsedTime.asSeconds()));
-        //Check if the runner has reached the end or a checkpoint
-        if (v[i].getDistanceRan() >= p.getTotalDistance()) {
-            //WIN CASE
-            v[i].setFinishedAt(currentTime);
-            std::cout << v[i].getName() << " just crossed the finish line!\n";
-            //TODO : victory popup ?
+        if (v[i].getPositionFinishedAt() == -2) {
+            if (v[i].getDistanceRan() >= p.getTotalDistance()) {
+                //WIN CASE
+                v[i].setPositionFinishedAt(finishedRaces);
+                v[i].setTimeFinishedAt(currentTime * TIME_SPEED);
+                v[i].setDistanceRan(p.getTotalDistance());
+                v[i].setSpeed(0.f);
+                std::cout << v[i].getName() << " just crossed the finish line!\n";
             
-            ++finishedRaces;
+                ++finishedRaces;
+            } else {
+                // d = v * t MULTIPLY HERE TO SPEED UP THE TIME
+                v[i].setDistanceRan(v[i].getDistanceRan() + (v[i].getSpeed() * elapsedTime.asSeconds()*TIME_SPEED));
+                //Check if the runner has reached the end or a checkpoint
+        
+                if (v[i].getDistanceRan() >= p.getCheckpointDistance(v[i].getCurrentCheckpoint()+1)) {
+            
+                    v[i].setCurrentCheckpoint(v[i].getCurrentCheckpoint()+1);
+                    std::cout << v[i].getName() << " reached checkpoint n°" << v[i].getCurrentCheckpoint() << std::endl;
+                    //Hydration part
+                    if (p.getCheckpointFood(v[i].getCurrentCheckpoint())) {
+                        v[i].updateHydration(p);
+                    }
+                }
+            }
         }
-        else if (v[i].getDistanceRan() >= p.getCheckpointDistance(v[i].getCurrentCheckpoint()+1)) {
-            
-            
-            v[i].setCurrentCheckpoint(v[i].getCurrentCheckpoint()+1);
-            std::cout << v[i].getName() << " reached checkpoint n°" << v[i].getCurrentCheckpoint() << std::endl;
-            //Hydration part
-            //TODO
-            
-        }
+        
 
         //If everyone has finished => stop the simulation + export the results to a file
         if (finishedRaces == v.size()) {
             std::cout << "--- RACE FINISHED ---\n";
+            finishedRaces = 0;//Reset to enable a game restart
             //Get out of the function to process the end screen display
             return -1;
         }
@@ -316,6 +328,3 @@ int updateDistances(const sf::Time& elapsedTime, const Parcours& p, std::vector<
     return EXIT_SUCCESS;
 }
 
-void onCheckpoint() {
-
-}

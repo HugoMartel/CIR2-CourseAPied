@@ -15,13 +15,17 @@ private:
     float averageSpeed; // 8 - 20km/h
     int prepWeeks;      // 8 - 16, see pdf for more info on its drawbacks
     float hydration;    // 0 - oo, TOTAL drank water
+    float hydrationImpactOnSpeed;
     float distanceRan;  // Updated in real time
     float speed;        // Updated at each frame
     size_t currentCheckpoint;
-    float finishedAt;   // Time at the finish line -1 if gives up
+    long positionFinishedAt;//-2 default, -1 if abandon, position if finished
+    float timeFinishedAt;   // Time at the finish line -1 if gives up
     float Ptmax;        // Used to update to speed
 public:
+    //UPDATES
     int updateSpeed(const Parcours&);
+    int updateHydration(const Parcours&);
     //CONSTRUCTORS
     Coureur(const std::string&,
             const unsigned int&,
@@ -37,13 +41,18 @@ public:
     float getDistanceRan() const;
     size_t getCurrentCheckpoint() const;
     float getSpeed() const;
-    float getFinishedAt() const;
+    float getTimeFinishedAt() const;
+    long getPositionFinishedAt() const;
+    float getHydrationImpactOnSpeed() const;
+    int getPrepWeeks() const;
     //SETTERS
     bool setName(const std::string&);
     bool setId(const unsigned int&);
+    bool setSpeed(const float&);
     bool setDistanceRan(const float&);
     bool setCurrentCheckpoint(const size_t&);
-    bool setFinishedAt(const float&);
+    bool setPositionFinishedAt(const long&);
+    bool setTimeFinishedAt(const float&);
     //FRIENDS
     friend int loadCoureurFromFile(const std::string&, std::vector<Coureur>&);
 };

@@ -6,6 +6,6 @@
 #include "parcours.hpp"
 #include "coureur.hpp"
 
-int exportResults(const Parcours&, const std::vector<Coureur>&);
+int exportResults(const Parcours&, std::vector<Coureur>&);
 
 #endif //__RESULTS__

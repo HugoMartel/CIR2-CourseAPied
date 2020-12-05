@@ -41,6 +41,7 @@ public:
     //GETTERS
     float getCheckpointX(const size_t&) const;
     float getCheckpointY(const size_t&) const;
+    bool getCheckpointFood(const size_t&) const;
     size_t getCheckpointAmount() const; 
     float getWindDirection() const;
     float getWindStrength() const;

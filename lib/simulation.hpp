@@ -19,7 +19,5 @@ void updateSpeeds(const Parcours&, std::vector<Coureur>&);
 void updateMaxMinSpeed(sf::Text&, sf::Text&, const std::vector<Coureur>&);
 //
 int updateDistances(const sf::Time&, const Parcours&, std::vector<Coureur>&, const float&);
-//
-void onCheckpoint();
 
 #endif //__SIMULATION__

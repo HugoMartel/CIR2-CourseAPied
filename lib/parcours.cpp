@@ -235,19 +235,19 @@ int Parcours::genWind() {
     //Setting up a seed c++11 style
     std::default_random_engine generator(std::random_device{}());
     
-    std::normal_distribution<float> ranNormalFloat(10, 5);//mu = 10, sigma = 5
+    std::normal_distribution<float> randNormalFloat(10, 5);//mu = 10, sigma = 5
    
-    // Which means 95% of the values between 10 and 50
-    //Normal random float between 0 and 80 km/h -> 80/3.6 m/s
+    // Which means 95% of the values between 0 (-3) and 13 km/h
+    //Normal random float between 0 and 20 km/h (-> m/s)
     do {
-        windStrength = ranNormalFloat(generator);
-    } while (windStrength <= 0.0 or windStrength > 40.0);
+        windStrength = randNormalFloat(generator);
+    } while (windStrength <= 0.0 or windStrength > 20.0);
     windStrength /= 3.6;//Convert to m/s
 
 
     //Uniform random float to gen the wind Angle
-    std::uniform_real_distribution<float> ranUniformFloat(0.f, 359.99f);
-    windDirection = ranUniformFloat(generator);
+    std::uniform_real_distribution<float> randUniformFloat(0.f, 359.99f);
+    windDirection = randUniformFloat(generator);
 
     return EXIT_SUCCESS; 
 }
@@ -259,6 +259,10 @@ float Parcours::getCheckpointX(const size_t& n) const {
 
 float Parcours::getCheckpointY(const size_t& n) const {
     return (n < checkpointAmount)? checkpoints[n].getY() : 0;
+}
+
+bool Parcours::getCheckpointFood(const size_t& n) const {
+    return (n < checkpointAmount)? checkpoints[n].getFood() : false;
 }
 
 float Parcours::getSlope(const size_t& n) const {
@@ -288,6 +292,7 @@ float Parcours::getWindDirection() const {
 float Parcours::getWindStrength() const {
     return windStrength;
 }
+
 
 /********
   DEBUG

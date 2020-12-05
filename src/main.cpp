@@ -35,11 +35,11 @@ int main()
     Parcours p(2, c);
     //p.printWind();
     */
-    //Parcours p("ressources/marathon.txt");
-    Parcours p("ressources/parcoursTest.txt");
-    //p.printWind();
+    Parcours p("ressources/marathon.txt");
+    //Parcours p("ressources/parcoursTest.txt");
+    p.printWind();
     //p.printCheckpoints();
-    p.printDistances();
+    //p.printDistances();
     //std::cout << "total: " << p.getTotalDistance() << std::endl;
     //p.printSlopes();
     //p.printAngles();
