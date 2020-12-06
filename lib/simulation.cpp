@@ -128,7 +128,7 @@ int simulation(sf::RenderWindow& window, Parcours& parcours, std::vector<Coureur
         
         coureursDisplay[i].setRadius(8);
         coureursDisplay[i].setPointCount(4);
-        coureursDisplay[i].setPosition(vertices[0].position);
+        coureursDisplay[i].setPosition(vertices[0].position - sf::Vector2f(8, 8));
         window.draw(coureursDisplay[i]);
     }
 
@@ -290,7 +290,7 @@ void updateSpeeds(const Parcours& p, std::vector<Coureur>& v) {
 }
 
 void updateMaxMinSpeed(sf::Text& txtMax, sf::Text& txtMin, const std::vector<Coureur>& v) {
-    //STL(ol) - unable to make this one work...
+    //STL - unable to make this one work...
     /*
     std::pair<std::vector<Coureur>::iterator, std::vector<Coureur>::iterator> tmp = std::minmax_element(v.begin(), v.end(), [](const Coureur& a, const Coureur& b){
         return a.getSpeed() < b.getSpeed();
@@ -320,7 +320,7 @@ int updateDistances(const sf::Time& elapsedTime, const Parcours& p, std::vector<
                 v[i].setPositionFinishedAt(finishedRaces);
                 v[i].setTimeFinishedAt(currentTime * TIME_SPEED);
                 v[i].setDistanceRan(p.getTotalDistance());
-                v[i].setSpeed(0.f);
+                //v[i].setSpeed(0.f);
                 std::cout << v[i].getName() << " just crossed the finish line!\n";
             
                 ++finishedRaces;
