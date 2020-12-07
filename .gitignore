@@ -34,6 +34,9 @@
 # valgrind files
 vgcore*
 
+# programm outputs
+results/*
+
 # cmake related stuff
 CMakeLists.txt.user
 CMakeCache.txt

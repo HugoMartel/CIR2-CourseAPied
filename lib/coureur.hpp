@@ -21,7 +21,7 @@ private:
     size_t currentCheckpoint;
     long positionFinishedAt;//-2 default, -1 if abandon, position if finished
     float timeFinishedAt;   // Time at the finish line -1 if gives up
-    float Ptmax;        // Used to update to speed
+    //float Ptmax;        // Used to update to speed
 public:
     //UPDATES
     int updateSpeed(const Parcours&);

@@ -6,41 +6,31 @@
 #include <iostream>
 #include <thread>
 
+//#define COUREURS_FILE "ressources/coureurListTest.txt"
+#define COUREURS_FILE "ressources/coureurList.txt"
+
+#define PARCOURS_FILE "ressources/marathon.txt"
+//#define PARCOURS_FILE "ressources/parcoursTest.txt"
 
 int main()
 {
     /*
-    * DEBUGS
-    * file loader tests
+    * LOAD FILES
+    * Parcours & Coureur
     */
     std::vector<Coureur> test;
-    if (loadCoureurFromFile("ressources/coureurListTest.txt", test)) {
+    if (loadCoureurFromFile(COUREURS_FILE, test)) {
         std::cerr << "-- ERROR LOADING THE FILE --\n";
         return EXIT_FAILURE;
     }
     
     
 
-    /*
-    for (size_t i = 0; i < test.size(); ++i)
-        std::cout << test[i].getCurrentCheckpoint() << std::endl;
-    */
-
-    //Parcours tests
-    /*
-    Checkpoint c[4] = {  Checkpoint(0.f, 0.f, 0.f),
-                         Checkpoint(0.f, 1.f, 1.f),
-                         Checkpoint(1.f ,1.f, 2.f),
-                         Checkpoint(1.f, 0.f, 0.f) };
-    Parcours p(2, c);
+    Parcours p(PARCOURS_FILE);
     //p.printWind();
-    */
-    Parcours p("ressources/marathon.txt");
-    //Parcours p("ressources/parcoursTest.txt");
-    p.printWind();
-    //p.printCheckpoints();
-    //p.printDistances();
-    //std::cout << "total: " << p.getTotalDistance() << std::endl;
+    p.printCheckpoints();
+    p.printDistances();
+    std::cout << "total: " << p.getTotalDistance() << std::endl;
     //p.printSlopes();
     //p.printAngles();
 
@@ -52,14 +42,14 @@ int main()
     sf::RenderWindow window(sf::VideoMode(1080, 720), "Simulation Course", sf::Style::Close);
     window.setKeyRepeatEnabled(false);
     sf::Image icon;
-    if (!icon.loadFromFile("img/laikaLOGO.png"))
+    if (!icon.loadFromFile("img/Sun.png"))
         return EXIT_FAILURE;
     window.setIcon (icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
     window.setFramerateLimit(150);
  
     // Load a sprite to display
     sf::Texture texture;
-    if (!texture.loadFromFile("img/laikaLOGO.png"))
+    if (!texture.loadFromFile("img/Sun.png"))
         return EXIT_FAILURE;
     sf::Sprite sprite(texture);
   

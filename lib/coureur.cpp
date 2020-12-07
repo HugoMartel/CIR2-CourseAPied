@@ -11,26 +11,31 @@
  HYDRATION UPDATE
 ----------------*/
 int Coureur::updateHydration(const Parcours& p) {
-    //Add up a randomly generated drank water quantity
-    std::default_random_engine generator(std::random_device{}());
+    if (positionFinishedAt != -2) {
+        std::cout << name << "'s hydration not checked!\n";
+    } else {
+        //Add up a randomly generated drank water quantity
+        std::default_random_engine generator(std::random_device{}());
 
-    std::normal_distribution<float> randNormalFloat(0.4, 0.2);//mu = .4, simga = .2
+        std::normal_distribution<float> randNormalFloat(0.4, 0.2);//mu = .4, simga = .2
 
-    float drankWater;
-    do {
-        drankWater = randNormalFloat(generator);
-    } while (drankWater <= 0.125f or drankWater >= 0.5f);
-    std::cout << drankWater << "\n";
-    hydration += drankWater;
+        float drankWater;
+        do {
+            drankWater = randNormalFloat(generator);
+        } while (drankWater <= 0.125f or drankWater >= 0.5f);
+        //std::cout << drankWater << "\n";
+        hydration += drankWater;
 
-    //Calculate the affect that will have the hydration on the runner
-    hydrationImpactOnSpeed = hydration / (0.6 * distanceRan/(speed*3600));
-    std::cout << hydrationImpactOnSpeed << "\n";
-    if (hydrationImpactOnSpeed < 0.4) {
-        //Check if the runner will give up
-        if (p.getCheckpointDistance(currentCheckpoint + 1) - distanceRan > 2000.f) {
-            distanceRan += 2000.f;
-            positionFinishedAt = -1;
+        //Calculate the affect that will have the hydration on the runner
+        hydrationImpactOnSpeed = hydration / (0.6 * distanceRan/(speed*3600));
+        
+        //std::cout << hydrationImpactOnSpeed << "\n";
+        if (hydrationImpactOnSpeed < 0.4) {
+            //Check if the runner will give up
+            if (p.getCheckpointDistance(currentCheckpoint + 1) - distanceRan > 2000.f) {
+                distanceRan += 2000.f;
+                positionFinishedAt = -1;
+            }
         }
     }
 
@@ -53,13 +58,6 @@ int Coureur::updateSpeed(const Parcours& p) {
             feltWindSpeed = p.getWindStrength();//wind is an obstacle
     
 
-        /*
-        float Pr = Ptmax - (0.5 * 1.205 * height)*(speed + feltWindSpeed)*(speed + feltWindSpeed)*speed;
-        std::cout << name << ": " << Pr << ", " << speed + feltWindSpeed << "\n";    
-
-        speed = Pr / (mass * 0.98);
-        */
-
         //Simplified formula
         speed = averageSpeed + ALPHA * (height/mass) * (std::pow(averageSpeed, 3) - speed*std::pow(speed+feltWindSpeed, 2));
         //p.getWindStrength()
@@ -76,6 +74,7 @@ int Coureur::updateSpeed(const Parcours& p) {
 
         // speed deduced from the shoeWeight 1.1e-4 deduced per gram
         speed *= 1 - ((int)(shoeWeight - 100.0))*0.00011;
+
 
         // speed deduced from the hydration
         if (hydrationImpactOnSpeed <= 0.9 and hydrationImpactOnSpeed >= 0.4) {
@@ -107,13 +106,12 @@ Coureur::Coureur(const std::string& Nname = "I. Ranfast", const unsigned int& Ni
     averageSpeed = (Nspeed >= 7.99 and Nspeed <= 20.01)? Nspeed/3.6 : 14.0/3.6;// from km/h to m/s
     prepWeeks = (Nprep >= 7.99 and Nprep <= 16.0001)? Nprep : 12.0;
     hydration = 0.5;// Sum of every water drank
+    hydrationImpactOnSpeed = 0.9;//Defaults to no impact on speed
     distanceRan = 0.0;
     speed = 0;
     currentCheckpoint = 0;
     positionFinishedAt = -2;
     timeFinishedAt = 0;//-1 if abandons or time in seconds if finished
-    //Ptmax = (averageSpeed * mass * 0.98) + 0.5*1.205*height*averageSpeed*averageSpeed*averageSpeed;
-    // 0 windSpeed
 }
 
 //-------------------------------------------------------------------------------------
@@ -211,12 +209,12 @@ int loadCoureurFromFile(const std::string& fileName, std::vector<Coureur>& v) {
                     return 7;
                 v[index].prepWeeks = std::stoi(line);
                 lineCounter = 0;
-                v[index].hydration = 0.5;
+                v[index].hydration = 0.5;//Well hydrated initially
+                v[index].hydrationImpactOnSpeed = 0.9;//Defaults to no effect
                 v[index].distanceRan = 0.f;
                 v[index].currentCheckpoint = 0;
                 v[index].positionFinishedAt = -2;//-1 if abandons or position if finished
                 v[index].timeFinishedAt = 0;//time of abandon or position
-                //v[index].Ptmax = (v[index].averageSpeed * v[index].mass * 0.98) + (0.5 * 1.205 * v[index].height * v[index].averageSpeed * v[index].averageSpeed * v[index].averageSpeed);// 0 windSpeed
                 v[index].speed = 0;
                 ++index;
                 break;

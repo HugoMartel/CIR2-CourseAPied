@@ -51,10 +51,10 @@ Parcours::Parcours(const std::size_t& n, Checkpoint* points) {
     //Process and fill the slopes values
     for (i = 0; i < checkpointAmount - 1; ++i) {
         slopes[i] = checkpoints[i].getZ() - checkpoints[i+1].getZ();
-        slopes[i] = 100 * ((slopes[i] < 0)? -std::atan2(std::abs(slopes[i]), std::sqrt( std::pow(checkpoints[i+1].getX()-checkpoints[i].getX(),2) + std::pow(checkpoints[i+1].getY()-checkpoints[i].getY(),2) )) : std::atan2(slopes[i], std::sqrt( std::pow(checkpoints[i+1].getX()-checkpoints[i].getX(),2) + std::pow(checkpoints[i+1].getY()-checkpoints[i].getY(),2) )) )/45;
+        slopes[i] = 100 * ((slopes[i] < 0)? std::atan2(std::abs(slopes[i]), std::sqrt( std::pow(checkpoints[i+1].getX()-checkpoints[i].getX(),2) + std::pow(checkpoints[i+1].getY()-checkpoints[i].getY(),2) )) : std::atan2(slopes[i], -std::sqrt( std::pow(checkpoints[i+1].getX()-checkpoints[i].getX(),2) + std::pow(checkpoints[i+1].getY()-checkpoints[i].getY(),2) )) )/45;
     }
     slopes[i] = checkpoints[i].getZ() - checkpoints[0].getZ();
-    slopes[i] = 100 * ((slopes[i] < 0)? -std::atan2(std::abs(slopes[i]), std::sqrt( std::pow(checkpoints[0].getX()-checkpoints[i].getX(),2) + std::pow(checkpoints[0].getY()-checkpoints[i].getY(),2) )) : std::atan2(slopes[i], std::sqrt( std::pow(checkpoints[0].getX()-checkpoints[i].getX(),2) + std::pow(checkpoints[0].getY()-checkpoints[i].getY(),2) )) )/45;
+    slopes[i] = 100 * ((slopes[i] < 0)? std::atan2(std::abs(slopes[i]), std::sqrt( std::pow(checkpoints[0].getX()-checkpoints[i].getX(),2) + std::pow(checkpoints[0].getY()-checkpoints[i].getY(),2) )) : -std::atan2(slopes[i], std::sqrt( std::pow(checkpoints[0].getX()-checkpoints[i].getX(),2) + std::pow(checkpoints[0].getY()-checkpoints[i].getY(),2) )) )/45;
  
 
     //Process and fill the angle values (to get how the path is oriented in comparaison to the x axis -->)
@@ -183,7 +183,7 @@ Parcours::Parcours(const std::string& fileName) {
     //Process and fill the slopes values
     for (i = 0; i < checkpointAmount - 1; ++i) {
         slopes[i] = checkpoints[i].getZ() - checkpoints[i+1].getZ();
-        slopes[i] = 100 * ((slopes[i] < 0)? -std::atan2(std::abs(slopes[i]), std::sqrt( std::pow(checkpoints[i+1].getX()-checkpoints[i].getX(),2) + std::pow(checkpoints[i+1].getY()-checkpoints[i].getY(),2) )) : std::atan2(slopes[i], std::sqrt( std::pow(checkpoints[i+1].getX()-checkpoints[i].getX(),2) + std::pow(checkpoints[i+1].getY()-checkpoints[i].getY(),2) )) )/45;
+        slopes[i] = 100 * ((slopes[i] < 0)? std::atan2(std::abs(slopes[i]), std::sqrt( std::pow(checkpoints[i+1].getX()-checkpoints[i].getX(),2) + std::pow(checkpoints[i+1].getY()-checkpoints[i].getY(),2) )) : -std::atan2(slopes[i], std::sqrt( std::pow(checkpoints[i+1].getX()-checkpoints[i].getX(),2) + std::pow(checkpoints[i+1].getY()-checkpoints[i].getY(),2) )) )/45;
     }
     slopes[i] = 0;//We don't care about the finish line slope
  

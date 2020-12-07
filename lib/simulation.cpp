@@ -55,7 +55,7 @@ int simulation(sf::RenderWindow& window, Parcours& parcours, std::vector<Coureur
             std::cout << (char)*it;
         std::cout << "\n";
         */
-        coureurNames[i].setPosition(20, 20 + 50*i);
+        coureurNames[i].setPosition(20, 5 + 50*i);
 
         //Add an outline to the RectangleShapes
         coureurDistRectangles[i].setOutlineThickness(5.f);
@@ -75,8 +75,8 @@ int simulation(sf::RenderWindow& window, Parcours& parcours, std::vector<Coureur
         }
 
         // Get the coureur's distance to the end to display a progress bar
-        coureurDistRectangles[i].setPosition(300, coureurNames[0].getLocalBounds().height + 50*i + 3);//Adding a little 3 to center things out
-        coureurDistRectangles[i].setSize(sf::Vector2f(coureurs[i].getDistanceRan()  / parcours.getTotalDistance() * 500 + 1, coureurNames[0].getLocalBounds().height));
+        coureurDistRectangles[i].setPosition(320, 5 + 50*i + 3);//Adding a little 3 to center things out
+        coureurDistRectangles[i].setSize(sf::Vector2f(coureurs[i].getDistanceRan()  / parcours.getTotalDistance() * 380 + 1, coureurNames[0].getGlobalBounds().height));
 
         window.draw(coureurNames[i]);
         window.draw(coureurDistRectangles[i]);
@@ -110,8 +110,7 @@ int simulation(sf::RenderWindow& window, Parcours& parcours, std::vector<Coureur
     
     for (size_t i = 0; i < parcours.getCheckpointAmount(); ++i) {
         vertices[i] = sf::Vertex(sf::Vector2f(parcours.getCheckpointX(i)*xTransform + 10, (parcours.getCheckpointY(i)*yTransform) + (window.getSize().y * 1/3) + 10), sf::Color(214, 40, 40) );
-        //std::cout << vertices[i].position.x << ", " << vertices[i].position.y << std::endl;
-        //std::cout << vertices[i].texCoords.x << ", " << vertices[i].texCoords.y << std::endl;
+        std::cout << vertices[i].position.x << ", " << vertices[i].position.y << std::endl;
     }
     
     window.draw(vertices);
@@ -124,8 +123,11 @@ int simulation(sf::RenderWindow& window, Parcours& parcours, std::vector<Coureur
     std::default_random_engine gen(std::random_device{}());
     std::uniform_int_distribution<int> randColor(0, 255);
     for (size_t i = 0; i < coureurs.size(); ++i) {
-        coureursDisplay[i].setFillColor(sf::Color(randColor(gen), randColor(gen), randColor(gen)));
-        
+        //coureursDisplay[i].setFillColor(sf::Color(randColor(gen), randColor(gen), randColor(gen)));
+        if (!i)
+            coureursDisplay[i].setFillColor(sf::Color(214, 40, 40));
+        else
+            coureursDisplay[i].setFillColor(sf::Color(247, 127, 0));
         coureursDisplay[i].setRadius(8);
         coureursDisplay[i].setPointCount(4);
         coureursDisplay[i].setPosition(vertices[0].position - sf::Vector2f(8, 8));
@@ -202,6 +204,7 @@ int simulation(sf::RenderWindow& window, Parcours& parcours, std::vector<Coureur
 
            return 2;
         }
+
         //Put the best coureurs on top of the vector
         std::sort(coureurs.begin(), coureurs.end(), [](const Coureur& a, const Coureur& b) {
             return (a.getPositionFinishedAt() != b.getPositionFinishedAt()) ? a.getPositionFinishedAt() < b.getPositionFinishedAt() : a.getDistanceRan() > b.getDistanceRan();
@@ -209,16 +212,19 @@ int simulation(sf::RenderWindow& window, Parcours& parcours, std::vector<Coureur
         
         for (size_t i = 0; i < coureurAmountToDisplay; ++i ) {
             coureurNames[i].setString(coureurs[i].getName() + ": " + std::to_string(coureurs[i].getDistanceRan()/1000) + "km");  
-            coureurDistRectangles[i].setSize(sf::Vector2f((coureurs[i].getDistanceRan() / parcours.getTotalDistance())*400 + 1, 20));
+            coureurDistRectangles[i].setSize(sf::Vector2f((coureurs[i].getDistanceRan() / parcours.getTotalDistance())*380 + 1, 20));
         }
 
 
         //2-Parcours display
-        //TODO
         //Update the five best coureurs' position on the parcours
-        for (size_t i = 0; i < coureurs.size(); ++i) { 
-            //coureursDisplay[i].setPosition(vertices[0].position);
-            
+        for (size_t i = 0; i < coureurs.size(); ++i) {
+        //size_t i = 0;
+            if (coureurs[i].getDistanceRan() < parcours.getTotalDistance()) {
+                sf::Vector2f newPosition(vertices[coureurs[i].getCurrentCheckpoint()].position + ( (vertices[coureurs[i].getCurrentCheckpoint()+1].position-vertices[coureurs[i].getCurrentCheckpoint()].position)/(parcours.getCheckpointDistance(coureurs[i].getCurrentCheckpoint()+1)-coureurs[i].getCurrentCheckpoint()) )*(coureurs[i].getDistanceRan()-parcours.getCheckpointDistance(coureurs[i].getCurrentCheckpoint())));
+                coureursDisplay[i].setPosition(newPosition - sf::Vector2f(8, 8));
+                std::cout << coureurs[i].getName() << ": " << newPosition.x << ", " << newPosition.y << "\n";
+            }
         }
 
         //3-Stopwatch
@@ -254,6 +260,7 @@ int simulation(sf::RenderWindow& window, Parcours& parcours, std::vector<Coureur
         //2
         window.draw(vertices);
         for (size_t i = 0; i < coureurs.size(); ++i)
+            if (coureurs[i].getPositionFinishedAt() == -2)
             window.draw(coureursDisplay[i]);
 
         //3
@@ -286,7 +293,8 @@ void centerText(sf::Text& txt, sf::RenderWindow& window) {
 
 void updateSpeeds(const Parcours& p, std::vector<Coureur>& v) {
     for (size_t i = 0; i < v.size(); ++i)
-        v[i].updateSpeed(p);
+        if (v[i].getPositionFinishedAt() == -2)
+            v[i].updateSpeed(p);
 }
 
 void updateMaxMinSpeed(sf::Text& txtMax, sf::Text& txtMin, const std::vector<Coureur>& v) {
@@ -320,7 +328,7 @@ int updateDistances(const sf::Time& elapsedTime, const Parcours& p, std::vector<
                 v[i].setPositionFinishedAt(finishedRaces);
                 v[i].setTimeFinishedAt(currentTime * TIME_SPEED);
                 v[i].setDistanceRan(p.getTotalDistance());
-                //v[i].setSpeed(0.f);
+                v[i].setSpeed(0.f);
                 std::cout << v[i].getName() << " just crossed the finish line!\n";
             
                 ++finishedRaces;
@@ -334,8 +342,10 @@ int updateDistances(const sf::Time& elapsedTime, const Parcours& p, std::vector<
                     v[i].setCurrentCheckpoint(v[i].getCurrentCheckpoint()+1);
                     std::cout << v[i].getName() << " reached checkpoint n°" << v[i].getCurrentCheckpoint() << std::endl;
                     //Hydration part
-                    if (p.getCheckpointFood(v[i].getCurrentCheckpoint())) {
-                        v[i].updateHydration(p);
+                    if (v[i].getCurrentCheckpoint() != p.getCheckpointAmount()-1) {
+                        if (p.getCheckpointFood(v[i].getCurrentCheckpoint())) {
+                            v[i].updateHydration(p);
+                        }
                     }
                 }
             }
