@@ -110,7 +110,7 @@ int simulation(sf::RenderWindow& window, Parcours& parcours, std::vector<Coureur
     
     for (size_t i = 0; i < parcours.getCheckpointAmount(); ++i) {
         vertices[i] = sf::Vertex(sf::Vector2f(parcours.getCheckpointX(i)*xTransform + 10, (parcours.getCheckpointY(i)*yTransform) + (window.getSize().y * 1/3) + 10), sf::Color(214, 40, 40) );
-        std::cout << vertices[i].position.x << ", " << vertices[i].position.y << std::endl;
+        //std::cout << vertices[i].position.x << ", " << vertices[i].position.y << std::endl;
     }
     
     window.draw(vertices);
@@ -176,9 +176,10 @@ int simulation(sf::RenderWindow& window, Parcours& parcours, std::vector<Coureur
     }
     */
 
-    /*
-     UPDATE
-    */
+    std::cout << "--- RACE STARTED  ---\n";
+    /*********
+    - UPDATE -
+    *********/
     sf::Clock stopwatch;
     while (window.isOpen()) {
         sf::Event e;
@@ -188,6 +189,13 @@ int simulation(sf::RenderWindow& window, Parcours& parcours, std::vector<Coureur
                     window.close();
                     return EXIT_SUCCESS;
                     break;
+                case sf::Event::KeyPressed:
+                    // Echap
+                    if (e.key.code == sf::Keyboard::Escape) {
+                        window.close();
+                        return EXIT_SUCCESS;
+                        break;
+                    }
                 default:
                     break;
             }
@@ -219,11 +227,13 @@ int simulation(sf::RenderWindow& window, Parcours& parcours, std::vector<Coureur
         //2-Parcours display
         //Update the five best coureurs' position on the parcours
         for (size_t i = 0; i < coureurs.size(); ++i) {
-        //size_t i = 0;
             if (coureurs[i].getDistanceRan() < parcours.getTotalDistance()) {
-                sf::Vector2f newPosition(vertices[coureurs[i].getCurrentCheckpoint()].position + ( (vertices[coureurs[i].getCurrentCheckpoint()+1].position-vertices[coureurs[i].getCurrentCheckpoint()].position)/(parcours.getCheckpointDistance(coureurs[i].getCurrentCheckpoint()+1)-coureurs[i].getCurrentCheckpoint()) )*(coureurs[i].getDistanceRan()-parcours.getCheckpointDistance(coureurs[i].getCurrentCheckpoint())));
+                
+                //Set the new position coords
+                sf::Vector2f newPosition( vertices[coureurs[i].getCurrentCheckpoint()].position + (vertices[coureurs[i].getCurrentCheckpoint()+1].position - vertices[coureurs[i].getCurrentCheckpoint()].position) * ( (coureurs[i].getDistanceRan() - parcours.getCheckpointDistance(coureurs[i].getCurrentCheckpoint())) / (parcours.getCheckpointDistance(coureurs[i].getCurrentCheckpoint()+1) - parcours.getCheckpointDistance(coureurs[i].getCurrentCheckpoint())) ) );
+
+                //Apply the position to our CircleShape ( -(8, 8) to correctly place the points)
                 coureursDisplay[i].setPosition(newPosition - sf::Vector2f(8, 8));
-                std::cout << coureurs[i].getName() << ": " << newPosition.x << ", " << newPosition.y << "\n";
             }
         }
 
@@ -335,12 +345,15 @@ int updateDistances(const sf::Time& elapsedTime, const Parcours& p, std::vector<
             } else {
                 // d = v * t MULTIPLY HERE TO SPEED UP THE TIME
                 v[i].setDistanceRan(v[i].getDistanceRan() + (v[i].getSpeed() * elapsedTime.asSeconds()*TIME_SPEED));
-                //Check if the runner has reached the end or a checkpoint
+                //Check if the runner has reached a checkpoint
         
                 if (v[i].getDistanceRan() >= p.getCheckpointDistance(v[i].getCurrentCheckpoint()+1)) {
             
                     v[i].setCurrentCheckpoint(v[i].getCurrentCheckpoint()+1);
-                    std::cout << v[i].getName() << " reached checkpoint n°" << v[i].getCurrentCheckpoint() << std::endl;
+
+                    //DEBUG
+                    //std::cout << v[i].getName() << " reached checkpoint n°" << v[i].getCurrentCheckpoint() << std::endl;
+                    
                     //Hydration part
                     if (v[i].getCurrentCheckpoint() != p.getCheckpointAmount()-1) {
                         if (p.getCheckpointFood(v[i].getCurrentCheckpoint())) {

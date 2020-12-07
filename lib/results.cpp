@@ -41,6 +41,7 @@ int exportResults(const Parcours& p, std::vector<Coureur>& v) {
         */
         {
         //Ascii Presentation
+        //put in a scope to free the string afterwards
         std::string resultsASCII = " _______                             __   __              \n";
         resultsASCII            += "|       \\                           |  \\ |  \\             \n";
         resultsASCII            += "| ▓▓▓▓▓▓▓\\ ______   _______ __    __| ▓▓_| ▓▓_    _______ \n";
@@ -94,10 +95,29 @@ int exportResults(const Parcours& p, std::vector<Coureur>& v) {
                 file << std::setw(8) << it->getDistanceRan();
             file << " |\n+---------------+------+----------+----------+\n";
         }
+        
+        {
+            //put in a scope to free the string afterwards
+            std::string infosASCII = "\n\n ______           ______                    \n";
+            infosASCII+= "|      \\         /      \\                   \n";
+            infosASCII+= " \\▓▓▓▓▓▓_______ |  ▓▓▓▓▓▓\\ ______   _______ \n";
+            infosASCII+= "  | ▓▓ |       \\| ▓▓_  \\▓▓/      \\ /       \\\n";
+            infosASCII+= "  | ▓▓ | ▓▓▓▓▓▓▓\\ ▓▓ \\   |  ▓▓▓▓▓▓\\  ▓▓▓▓▓▓▓\n";
+            infosASCII+= "  | ▓▓ | ▓▓  | ▓▓ ▓▓▓▓   | ▓▓  | ▓▓\\▓▓    \\ \n";
+            infosASCII+= " _| ▓▓_| ▓▓  | ▓▓ ▓▓     | ▓▓__/ ▓▓_\\▓▓▓▓▓▓\\\n";
+            infosASCII+= "|   ▓▓ \\ ▓▓  | ▓▓ ▓▓      \\▓▓    ▓▓       ▓▓\n";
+            infosASCII+= " \\▓▓▓▓▓▓\\▓▓   \\▓▓\\▓▓       \\▓▓▓▓▓▓ \\▓▓▓▓▓▓▓ \n\n";
+        
+            file << infosASCII;
+        }
 
-
-        //TABLE FOOTER
-
+        //PARCOURS INFOS
+        file << std::setfill(' ');
+        file << "+----------------------+-------------+\n";
+        file << "| Total Distance       | " << std::setw(6) << p.getTotalDistance()/1000 << "km   |\n";
+        file << "| Wind Recorded        | " << std::setw(6) << p.getWindStrength()*3.6 << "km/h |\n";
+        file << "| Amount of Chekpoints | " << std::setw(6) << p.getCheckpointAmount() << "      |\n";
+        file << "+----------------------+-------------+";
 
         //END WRITING
         file.close();

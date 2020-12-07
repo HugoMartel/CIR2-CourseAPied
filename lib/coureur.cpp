@@ -35,6 +35,7 @@ int Coureur::updateHydration(const Parcours& p) {
             if (p.getCheckpointDistance(currentCheckpoint + 1) - distanceRan > 2000.f) {
                 distanceRan += 2000.f;
                 positionFinishedAt = -1;
+                std::cout << name << "just gave up...\n";
             }
         }
     }

@@ -5,15 +5,22 @@
 #include "../lib/simulation.hpp"
 #include <iostream>
 #include <thread>
+#include <cstring>
+
 
 //#define COUREURS_FILE "ressources/coureurListTest.txt"
 #define COUREURS_FILE "ressources/coureurList.txt"
 
-#define PARCOURS_FILE "ressources/marathon.txt"
+//#define PARCOURS_FILE "ressources/marathon.txt"
 //#define PARCOURS_FILE "ressources/parcoursTest.txt"
+#define PARCOURS_FILE "ressources/star.txt"
 
-int main()
-{
+int main(int argc, char* argv[]) {
+
+    bool debug = false;
+    if (!std::strcmp(argv[argc-1] , "--debug"))
+        debug = true;
+
     /*
     * LOAD FILES
     * Parcours & Coureur
@@ -27,13 +34,15 @@ int main()
     
 
     Parcours p(PARCOURS_FILE);
-    //p.printWind();
-    p.printCheckpoints();
-    p.printDistances();
-    std::cout << "total: " << p.getTotalDistance() << std::endl;
-    //p.printSlopes();
-    //p.printAngles();
-
+    if (debug) {
+        p.printWind();
+        p.printCheckpoints();
+        p.printDistances();
+        std::cout << "total: " << p.getTotalDistance() << std::endl;
+        p.printSlopes();
+        p.printAngles();
+    }
+    
     /****************************
                 INIT
     ****************************/
@@ -115,10 +124,14 @@ int main()
                     music.stop();
                     window.close();
                     break;
-                
+
                 case sf::Event::KeyPressed:
                     // Arrows and Enter/Space
-                    if (event.key.code == sf::Keyboard::Down) {
+                    if (event.key.code == sf::Keyboard::Escape) {
+                        music.stop();
+                        window.close();
+                        break;
+                    } else if (event.key.code == sf::Keyboard::Down) {
                         // Down case 
                         selector.setPosition(settingsText.getPosition() - sf::Vector2f(170.f, 25.f)); 
                         settingsText.setFillColor(sf::Color(247, 127, 0));
