@@ -21,6 +21,7 @@ Run CMake and compile it using CMakeLists.txt
 # Documentation
 For more infos see the [doc](https://github.com/HugoMartel/CIR2-CourseAPied/tree/main/doc)<br/>
 *Contains the formulas used in the project explained and few infos*.
+<br/><hr/><br/>
 
 # Screenshots
 <img src="img/screen1.png" alt="Screenshot 1" width="300px"/>
