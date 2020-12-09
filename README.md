@@ -17,8 +17,9 @@ cmake --build build
 On Windows it should work with MSVC but it hasn't been tested yet (no time :sweat_smile:)<br/>
 Run CMake and compile it using CMakeLists.txt
 <br/><hr/><br/>
+
 # Documentation
-For more infos see the [doc]("https://github.com/HugoMartel/CIR2-CourseAPied/tree/main/doc")
+For more infos see the [doc](https://github.com/HugoMartel/CIR2-CourseAPied/tree/main/doc)<br/>
 *Contains the formulas used in the project explained and few infos*.
 
 # Screenshots
