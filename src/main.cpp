@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
 
     // Load a music to play
     sf::Music music;
-    if (!music.openFromFile("music/mii-channel-music.ogg"))
+    if (!music.openFromFile("music/chillsoundtrack.ogg"))
         return EXIT_FAILURE;
     music.setVolume(50.f);
     music.setLoop(true);
