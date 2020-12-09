@@ -18,5 +18,5 @@ On Windows it should work with MSVC but it hasn't been tested yet (no time :swea
 Run CMake and compile it using CMakeLists.txt
 <br/><hr/><br/>
 # Documentation
-For more infos see: [Doc folder](https://github.com/HugoMartel/CIR2-CourseAPied/tree/main/doc)<br/>
+For more infos see the [doc](https://github.com/HugoMartel/CIR2-CourseAPied/tree/main/doc)
 *Contains the formulas used in the project explained and few infos*.
